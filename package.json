@@ -1,5 +1,5 @@
 {
-  "name": "src",
+  "name": "settlers-cdk",
   "version": "0.1.0",
   "bin": {
     "src": "bin/src.js"
