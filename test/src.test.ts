@@ -59,5 +59,7 @@ test('API Gateway stack created', () => {
   };
   const apiGatewayStack = new ApiGatewayStack(app, 'ApiGatewayStack', apiGatewayProps);
   const apiGatewayTemplate = Template.fromStack(apiGatewayStack);
-  apiGatewayTemplate.resourceCountIs('AWS::ApiGateway::RestApi', 1);
+  apiGatewayTemplate.resourceCountIs('AWS::ApiGatewayV2::Api', 1);
+  apiGatewayTemplate.resourceCountIs('AWS::ApiGatewayV2::Route', 1);
+  apiGatewayTemplate.resourceCountIs('AWS::ApiGatewayV2::Integration', 1);
 });

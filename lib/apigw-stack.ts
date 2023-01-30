@@ -2,7 +2,8 @@ import {
   Stack,
   StackProps
 } from 'aws-cdk-lib';
-import { LambdaRestApi } from 'aws-cdk-lib/aws-apigateway';
+import { WebSocketApi } from '@aws-cdk/aws-apigatewayv2-alpha';
+import { WebSocketLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations-alpha';
 import { Function } from "aws-cdk-lib/aws-lambda";
 import { Construct } from 'constructs';
 
@@ -14,13 +15,9 @@ export class ApiGatewayStack extends Stack {
   constructor(scope: Construct, id: string, props: ApiGatewayStackProps) {
     super(scope, id, props);
 
-    const apiGateway = new LambdaRestApi(this, 'game-state-api', {
-      handler: props.lambda,
-      proxy: false
+    const apiGateway = new WebSocketApi(this, 'game-state-api');
+    apiGateway.addRoute('gamestate', {
+      integration: new WebSocketLambdaIntegration('GameStateIntegration', props.lambda),
     });
-
-    const gameState = apiGateway.root.addResource('game-state');
-    gameState.addMethod('GET')  // Retrieval
-    gameState.addMethod('POST') // Update
   }
 }
