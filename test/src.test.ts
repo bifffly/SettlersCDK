@@ -26,21 +26,6 @@ describe('Game State API Gateway Stack', () => {
       Runtime: 'nodejs18.x',
     });
   });
-});
-
-describe('Game State API Gateway Stack', () => {
-  let gameStateApiTemplate: Template;
-
-  beforeAll(() => {
-    const app = new App();
-
-    const gameStateApiStack = new GameStateApiGatewayStack(app, 'GameStateApiGatewayStack');
-    gameStateApiTemplate = Template.fromStack(gameStateApiStack);
-  });
-
-  test('creates Lambda resources', () => {
-    gameStateApiTemplate.resourceCountIs('AWS::Lambda::Function', 1);
-  });
 
   test('creates API Gateway resources', () => {
     gameStateApiTemplate.resourceCountIs('AWS::ApiGatewayV2::Api', 1);
