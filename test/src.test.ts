@@ -2,7 +2,6 @@ import { App } from 'aws-cdk-lib';
 import { Template } from 'aws-cdk-lib/assertions';
 import { DynamodbStack } from '../lib/dynamodb-stack';
 import { GameStateApiGatewayStack } from '../lib/game-state-apigw-stack';
-import { S3Stack } from '../lib/s3-stack';
 
 test('DynamoDB stack created', () => {
   const app = new App();
@@ -11,11 +10,22 @@ test('DynamoDB stack created', () => {
   dynamoDbTemplate.resourceCountIs('AWS::DynamoDB::Table', 1);
 });
 
-test('S3 stack created', () => {
-  const app = new App();
-  const s3Stack = new S3Stack(app, 'S3Stack');
-  const s3StackTemplate = Template.fromStack(s3Stack);
-  s3StackTemplate.resourceCountIs('AWS::S3::Bucket', 1);
+describe('Game State API Gateway Stack', () => {
+  let gameStateApiTemplate: Template;
+
+  beforeAll(() => {
+    const app = new App();
+
+    const gameStateApiStack = new GameStateApiGatewayStack(app, 'GameStateApiGatewayStack');
+    gameStateApiTemplate = Template.fromStack(gameStateApiStack);
+  });
+
+  test('creates Lambda resources', () => {
+    gameStateApiTemplate.hasResourceProperties('AWS::Lambda::Function', {
+      Handler: 'game-state-handler.handler',
+      Runtime: 'nodejs18.x',
+    });
+  });
 });
 
 describe('Game State API Gateway Stack', () => {
@@ -23,9 +33,8 @@ describe('Game State API Gateway Stack', () => {
 
   beforeAll(() => {
     const app = new App();
-    const s3Stack = new S3Stack(app, 'S3Stack');
 
-    const gameStateApiStack = new GameStateApiGatewayStack(app, 'GameStateApiGatewayStack', { s3Stack });
+    const gameStateApiStack = new GameStateApiGatewayStack(app, 'GameStateApiGatewayStack');
     gameStateApiTemplate = Template.fromStack(gameStateApiStack);
   });
 
@@ -36,6 +45,9 @@ describe('Game State API Gateway Stack', () => {
   test('creates API Gateway resources', () => {
     gameStateApiTemplate.resourceCountIs('AWS::ApiGatewayV2::Api', 1);
     gameStateApiTemplate.resourceCountIs('AWS::ApiGatewayV2::Route', 1);
+    gameStateApiTemplate.hasResourceProperties('AWS::ApiGatewayV2::Route', {
+      RouteKey: 'gamestate',
+    });
     gameStateApiTemplate.resourceCountIs('AWS::ApiGatewayV2::Integration', 1);
   });
 });

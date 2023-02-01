@@ -3,20 +3,16 @@ import { WebSocketApi } from '@aws-cdk/aws-apigatewayv2-alpha';
 import { WebSocketLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations-alpha';
 import { Code, Function, Runtime } from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
-import { S3Stack } from './s3-stack';
-
-export interface GameStateApiGatewayStackProps extends StackProps {
-  s3Stack: S3Stack;
-}
+import { join } from 'path';
 
 export class GameStateApiGatewayStack extends Stack {
-  constructor(scope: Construct, id: string, props: GameStateApiGatewayStackProps) {
+  constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
     const lambda = new Function(this, 'game-state-function', {
       runtime: Runtime.NODEJS_18_X,
-      handler: 'index.handler',
-      code: Code.fromBucket(props.s3Stack.gameStateBucket, ''),
+      handler: 'game-state-handler.handler',
+      code: Code.fromAsset(join(__dirname, '../src')),
     });
 
     const apiGateway = new WebSocketApi(this, 'game-state-api');
