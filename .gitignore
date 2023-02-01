@@ -3,6 +3,7 @@
 *.d.ts
 node_modules
 .idea
+.eslintcache
 
 # CDK asset staging directory
 .cdk.staging

@@ -1,12 +1,5 @@
-import {
-  Stack,
-  StackProps
-} from 'aws-cdk-lib';
-import {
-  AttributeType,
-  BillingMode,
-  Table
-} from 'aws-cdk-lib/aws-dynamodb';
+import { Stack, StackProps } from 'aws-cdk-lib';
+import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
 import { Construct } from 'constructs';
 // import * as sqs from 'aws-cdk-lib/aws-sqs';
 

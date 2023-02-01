@@ -1,8 +1,8 @@
 import { App } from 'aws-cdk-lib';
 import { Template } from 'aws-cdk-lib/assertions';
-import { DynamodbStack } from "../lib/dynamodb-stack";
-import { GameStateApiGatewayStack } from "../lib/game-state-apigw-stack";
-import { S3Stack } from "../lib/s3-stack";
+import { DynamodbStack } from '../lib/dynamodb-stack';
+import { GameStateApiGatewayStack } from '../lib/game-state-apigw-stack';
+import { S3Stack } from '../lib/s3-stack';
 
 test('DynamoDB stack created', () => {
   const app = new App();
