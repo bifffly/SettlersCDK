@@ -29,10 +29,19 @@ describe('Game State API Gateway Stack', () => {
 
   test('creates API Gateway resources', () => {
     gameStateApiTemplate.resourceCountIs('AWS::ApiGatewayV2::Api', 1);
+    gameStateApiTemplate.hasResourceProperties('AWS::ApiGatewayV2::Api', {
+      Name: 'game-state-api',
+      ProtocolType: 'WEBSOCKET',
+      RouteSelectionExpression: '$request.body.action',
+    });
     gameStateApiTemplate.resourceCountIs('AWS::ApiGatewayV2::Route', 1);
     gameStateApiTemplate.hasResourceProperties('AWS::ApiGatewayV2::Route', {
       RouteKey: 'gamestate',
+      RequestModels: {
+        gamestate: 'gamestate-request-model',
+      },
     });
+    gameStateApiTemplate.resourceCountIs('AWS::ApiGatewayV2::Model', 1);
     gameStateApiTemplate.resourceCountIs('AWS::ApiGatewayV2::Integration', 1);
   });
 });

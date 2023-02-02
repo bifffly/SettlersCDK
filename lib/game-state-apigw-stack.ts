@@ -1,9 +1,10 @@
 import { Stack, StackProps } from 'aws-cdk-lib';
 import { WebSocketApi } from '@aws-cdk/aws-apigatewayv2-alpha';
-import { WebSocketLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations-alpha';
 import { Code, Function, Runtime } from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
 import { join } from 'path';
+import { CfnIntegration, CfnModel, CfnRoute } from 'aws-cdk-lib/aws-apigatewayv2';
+import { JsonSchemaType, JsonSchemaVersion } from 'aws-cdk-lib/aws-apigateway';
 
 export class GameStateApiGatewayStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -16,8 +17,36 @@ export class GameStateApiGatewayStack extends Stack {
     });
 
     const apiGateway = new WebSocketApi(this, 'game-state-api');
-    apiGateway.addRoute('gamestate', {
-      integration: new WebSocketLambdaIntegration('GameStateIntegration', lambda),
+
+    const schema = {
+      schema: JsonSchemaVersion.DRAFT4,
+      title: 'gamestate',
+      type: JsonSchemaType.OBJECT,
+      properties: {
+        gameId: { type: JsonSchemaType.STRING },
+      },
+    };
+
+    this.addRoute(apiGateway, 'gamestate', schema);
+
+    new CfnIntegration(this, 'gamestate-api-integration', {
+      apiId: apiGateway.apiId,
+      integrationType: 'AWS',
+      integrationUri: `arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/${lambda.functionArn}/invocations`,
+    });
+  }
+
+  private addRoute(api: WebSocketApi, name: string, schema: any) {
+    const model = new CfnModel(this, `${name}-request-model`, {
+      apiId: api.apiId,
+      name: `${name}-request-model`,
+      schema,
+    });
+
+    new CfnRoute(this, `${name}-route`, {
+      apiId: api.apiId,
+      routeKey: name,
+      requestModels: { [name]: model.name },
     });
   }
 }

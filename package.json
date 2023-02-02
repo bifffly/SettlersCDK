@@ -5,7 +5,7 @@
     "src": "bin/src.js"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && jest",
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",
