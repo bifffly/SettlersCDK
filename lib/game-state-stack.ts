@@ -5,14 +5,16 @@ import { Construct } from 'constructs';
 import { WebSocketLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations-alpha';
 import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
+import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 
 export class GameStateStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
     const table = new Table(this, 'game-state-table', {
+      tableName: 'game-state-table',
       partitionKey: {
-        name: 'game-state-id',
+        name: 'connectionId',
         type: AttributeType.STRING,
       },
       billingMode: BillingMode.PROVISIONED,
@@ -20,21 +22,8 @@ export class GameStateStack extends Stack {
       writeCapacity: 1,
     });
 
-    const connectLambda = new NodejsFunction(this, 'connect-function', {
-      entry: 'src/connect-handler.ts',
-      runtime: Runtime.NODEJS_18_X,
-      environment: {
-        TABLE_NAME: table.tableName,
-      },
-    });
-
-    const disconnectLambda = new NodejsFunction(this, 'disconnect-function', {
-      entry: 'src/disconnect-handler.ts',
-      runtime: Runtime.NODEJS_18_X,
-      environment: {
-        TABLE_NAME: table.tableName,
-      },
-    });
+    const connectLambda = this.addConnectLambda(table);
+    const disconnectLambda = this.addDisconnectLambda(table);
 
     const apiGateway = new WebSocketApi(this, 'game-state-api', {
       connectRouteOptions: {
@@ -50,5 +39,45 @@ export class GameStateStack extends Stack {
       stageName: 'prod',
       autoDeploy: true,
     });
+  }
+
+  private addConnectLambda(table: Table): NodejsFunction {
+    const connectLambda = new NodejsFunction(this, 'connect-function', {
+      entry: 'src/connect-handler.ts',
+      runtime: Runtime.NODEJS_18_X,
+      environment: {
+        TABLE_NAME: table.tableName,
+      },
+    });
+
+    connectLambda.addToRolePolicy(
+      new PolicyStatement({
+        effect: Effect.ALLOW,
+        actions: ['dynamodb:PutItem'],
+        resources: [table.tableArn],
+      })
+    );
+
+    return connectLambda;
+  }
+
+  private addDisconnectLambda(table: Table): NodejsFunction {
+    const disconnectLambda = new NodejsFunction(this, 'disconnect-function', {
+      entry: 'src/disconnect-handler.ts',
+      runtime: Runtime.NODEJS_18_X,
+      environment: {
+        TABLE_NAME: table.tableName,
+      },
+    });
+
+    disconnectLambda.addToRolePolicy(
+      new PolicyStatement({
+        effect: Effect.ALLOW,
+        actions: ['dynamodb:DeleteItem'],
+        resources: [table.tableArn],
+      })
+    );
+
+    return disconnectLambda;
   }
 }
