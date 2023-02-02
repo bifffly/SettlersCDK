@@ -38,4 +38,9 @@ describe('Game State API Gateway Stack', () => {
 
     gameStateTemplate.resourceCountIs('AWS::ApiGatewayV2::Integration', 2);
   });
+
+  test('creates IAM resources', () => {
+    gameStateTemplate.resourceCountIs('AWS::IAM::Policy', 2);
+    gameStateTemplate.resourceCountIs('AWS::IAM::Role', 2);
+  });
 });
