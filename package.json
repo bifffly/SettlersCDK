@@ -10,6 +10,7 @@
     "test": "jest",
     "cdk": "cdk",
     "lint": "eslint . --ext .ts",
+    "lint-fix": "eslint . --ext .ts --fix",
     "prettier": "prettier --ignore-path .gitignore --write */**/*.ts",
     "prepare": "husky install"
   },
@@ -19,6 +20,7 @@
     "@typescript-eslint/eslint-plugin": "^5.50.0",
     "@typescript-eslint/parser": "^5.50.0",
     "aws-cdk": "2.62.2",
+    "esbuild": "^0.17.5",
     "eslint": "^8.2.0",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-prettier": "^8.6.0",

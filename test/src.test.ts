@@ -17,10 +17,7 @@ describe('Game State API Gateway Stack', () => {
   });
 
   test('creates Lambda resources', () => {
-    gameStateTemplate.hasResourceProperties('AWS::Lambda::Function', {
-      Handler: 'game-state-handler.handler',
-      Runtime: 'nodejs18.x',
-    });
+    gameStateTemplate.resourceCountIs('AWS::Lambda::Function', 2);
   });
 
   test('creates API Gateway resources', () => {
@@ -30,14 +27,15 @@ describe('Game State API Gateway Stack', () => {
       ProtocolType: 'WEBSOCKET',
       RouteSelectionExpression: '$request.body.action',
     });
-    gameStateTemplate.resourceCountIs('AWS::ApiGatewayV2::Route', 1);
+
+    gameStateTemplate.resourceCountIs('AWS::ApiGatewayV2::Route', 2);
     gameStateTemplate.hasResourceProperties('AWS::ApiGatewayV2::Route', {
-      RouteKey: 'gamestate',
-      RequestModels: {
-        gamestate: 'gamestate-request-model',
-      },
+      RouteKey: '$connect',
     });
-    gameStateTemplate.resourceCountIs('AWS::ApiGatewayV2::Model', 1);
-    gameStateTemplate.resourceCountIs('AWS::ApiGatewayV2::Integration', 1);
+    gameStateTemplate.hasResourceProperties('AWS::ApiGatewayV2::Route', {
+      RouteKey: '$disconnect',
+    });
+
+    gameStateTemplate.resourceCountIs('AWS::ApiGatewayV2::Integration', 2);
   });
 });
