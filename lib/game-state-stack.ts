@@ -5,10 +5,21 @@ import { Construct } from 'constructs';
 import { join } from 'path';
 import { CfnIntegration, CfnModel, CfnRoute } from 'aws-cdk-lib/aws-apigatewayv2';
 import { JsonSchemaType, JsonSchemaVersion } from 'aws-cdk-lib/aws-apigateway';
+import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
 
-export class GameStateApiGatewayStack extends Stack {
+export class GameStateStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
+
+    new Table(this, 'game-state-table', {
+      partitionKey: {
+        name: 'game-state-id',
+        type: AttributeType.STRING,
+      },
+      billingMode: BillingMode.PROVISIONED,
+      readCapacity: 1,
+      writeCapacity: 1,
+    });
 
     const lambda = new Function(this, 'game-state-function', {
       runtime: Runtime.NODEJS_18_X,

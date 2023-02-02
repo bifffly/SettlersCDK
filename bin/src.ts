@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
 import { App, StackProps } from 'aws-cdk-lib';
-import { DynamodbStack } from '../lib/dynamodb-stack';
-import { GameStateApiGatewayStack } from '../lib/game-state-apigw-stack';
+import { GameStateStack } from '../lib/game-state-stack';
 
 const app = new App();
 
@@ -13,6 +12,4 @@ const props: StackProps = {
   },
 };
 
-new DynamodbStack(app, 'DynamoDbStack', props);
-
-new GameStateApiGatewayStack(app, 'GameStateApiGatewayStack', props);
+new GameStateStack(app, 'GameStateStack', props);
