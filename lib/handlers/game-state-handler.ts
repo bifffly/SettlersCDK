@@ -1,6 +1,6 @@
 import { Handler } from 'aws-cdk-lib/aws-lambda';
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import { DocumentClient } from 'aws-sdk/clients/dynamodb';
+import { DocumentClient, UpdateItemInput } from 'aws-sdk/clients/dynamodb';
 
 const ddb: DocumentClient = new DocumentClient({
   apiVersion: '2012-08-10',
@@ -13,15 +13,27 @@ export const handler: Handler = async (event: APIGatewayProxyEvent) => {
     throw new Error('table name not specified as environment variable');
   }
 
-  const putParams = {
+  if (!event.body) {
+    return {
+      statusCode: 500,
+      body: 'Event body cannot be null.',
+    };
+  }
+  const eventBody = JSON.parse(event.body);
+
+  const updateParams: UpdateItemInput = {
     TableName: tableName,
-    Item: {
-      connectionId: event.requestContext.connectionId,
+    Key: {
+      gameId: { S: eventBody.gameId },
+    },
+    UpdateExpression: 'ADD connections :c',
+    ExpressionAttributeValues: {
+      ':c': { SS: [event.requestContext.connectionId as string] },
     },
   };
 
   try {
-    await ddb.put(putParams).promise();
+    await ddb.update(updateParams).promise();
   } catch (err) {
     return {
       statusCode: 500,

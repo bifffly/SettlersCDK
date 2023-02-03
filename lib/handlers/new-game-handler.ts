@@ -1,5 +1,6 @@
 import { Handler } from 'aws-cdk-lib/aws-lambda';
 import { APIGatewayProxyEvent } from 'aws-lambda';
+import { v4 as uuidv4 } from 'uuid';
 import { DocumentClient } from 'aws-sdk/clients/dynamodb';
 
 const ddb: DocumentClient = new DocumentClient({
@@ -16,7 +17,8 @@ export const handler: Handler = async (event: APIGatewayProxyEvent) => {
   const putParams = {
     TableName: tableName,
     Item: {
-      connectionId: event.requestContext.connectionId,
+      gameId: uuidv4(),
+      connections: [event.requestContext.connectionId],
     },
   };
 
