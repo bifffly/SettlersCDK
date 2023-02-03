@@ -6,6 +6,7 @@ import { WebSocketLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integratio
 import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import { join } from 'path';
 
 export class GameStateStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -43,7 +44,7 @@ export class GameStateStack extends Stack {
 
   private addConnectLambda(table: Table): NodejsFunction {
     const connectLambda = new NodejsFunction(this, 'connect-function', {
-      entry: 'src/connect-handler.ts',
+      entry: join(__dirname, '../handlers/connect-handler.ts'),
       runtime: Runtime.NODEJS_18_X,
       environment: {
         TABLE_NAME: table.tableName,
@@ -63,7 +64,7 @@ export class GameStateStack extends Stack {
 
   private addDisconnectLambda(table: Table): NodejsFunction {
     const disconnectLambda = new NodejsFunction(this, 'disconnect-function', {
-      entry: 'src/disconnect-handler.ts',
+      entry: join(__dirname, '../handlers/disconnect-handler.ts'),
       runtime: Runtime.NODEJS_18_X,
       environment: {
         TABLE_NAME: table.tableName,

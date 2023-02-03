@@ -1,6 +1,6 @@
 import { App } from 'aws-cdk-lib';
 import { Template } from 'aws-cdk-lib/assertions';
-import { GameStateStack } from '../lib/game-state-stack';
+import { GameStateStack } from '../lib/stacks/game-state-stack';
 
 describe('Game State API Gateway Stack', () => {
   let gameStateTemplate: Template;
