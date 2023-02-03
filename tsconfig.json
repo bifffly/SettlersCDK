@@ -5,7 +5,9 @@
     "lib": [
       "es2020"
     ],
-    // "declaration": true,
+    "declaration": true,
+    "outDir": "./dist/lib",
+    "declarationDir": "./dist/types",
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
@@ -25,6 +27,7 @@
   },
   "exclude": [
     "node_modules",
-    "cdk.out"
+    "cdk.out",
+    "dist"
   ]
 }

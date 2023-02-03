@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
 import { App, StackProps } from 'aws-cdk-lib';
-import { GameStateStack } from '../lib/game-state-stack';
+import { GameStateStack } from './stacks/game-state-stack';
 
 const app = new App();
 
