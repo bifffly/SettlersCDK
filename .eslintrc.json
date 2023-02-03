@@ -7,8 +7,6 @@
     "extends": [
         "airbnb",
         "prettier"
-        // "eslint:recommended",
-        // "plugin:@typescript-eslint/recommended"
     ],
     "overrides": [
     ],
@@ -57,5 +55,17 @@
                 "max-len": 120
             }
         ]
+    },
+    "settings": {
+        "import/resolver": {
+            "node": {
+                "extensions": [ // https://stackoverflow.com/questions/55198502/using-eslint-with-typescript-unable-to-resolve-path-to-module
+                    ".js",
+                    ".jsx",
+                    ".ts",
+                    ".tsx"
+                ]
+            }
+        }
     }
 }

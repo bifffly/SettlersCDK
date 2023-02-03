@@ -13,11 +13,11 @@ describe('Game State API Gateway Stack', () => {
   });
 
   test('creates DynamoDB resources', () => {
-    gameStateTemplate.resourceCountIs('AWS::DynamoDB::Table', 1);
+    gameStateTemplate.resourceCountIs('AWS::DynamoDB::Table', 2);
   });
 
   test('creates Lambda resources', () => {
-    gameStateTemplate.resourceCountIs('AWS::Lambda::Function', 2);
+    gameStateTemplate.resourceCountIs('AWS::Lambda::Function', 4);
   });
 
   test('creates API Gateway resources', () => {
@@ -28,19 +28,30 @@ describe('Game State API Gateway Stack', () => {
       RouteSelectionExpression: '$request.body.action',
     });
 
-    gameStateTemplate.resourceCountIs('AWS::ApiGatewayV2::Route', 2);
+    gameStateTemplate.resourceCountIs('AWS::ApiGatewayV2::Route', 4);
     gameStateTemplate.hasResourceProperties('AWS::ApiGatewayV2::Route', {
       RouteKey: '$connect',
     });
     gameStateTemplate.hasResourceProperties('AWS::ApiGatewayV2::Route', {
       RouteKey: '$disconnect',
     });
+    gameStateTemplate.hasResourceProperties('AWS::ApiGatewayV2::Route', {
+      RouteKey: 'new-game',
+    });
+    gameStateTemplate.hasResourceProperties('AWS::ApiGatewayV2::Route', {
+      RouteKey: 'game-state',
+    });
 
-    gameStateTemplate.resourceCountIs('AWS::ApiGatewayV2::Integration', 2);
+    gameStateTemplate.resourceCountIs('AWS::ApiGatewayV2::Integration', 4);
   });
 
   test('creates IAM resources', () => {
-    gameStateTemplate.resourceCountIs('AWS::IAM::Policy', 2);
-    gameStateTemplate.resourceCountIs('AWS::IAM::Role', 2);
+    gameStateTemplate.resourceCountIs('AWS::IAM::Policy', 4);
+    gameStateTemplate.resourceCountIs('AWS::IAM::Role', 4);
+  });
+
+  test('creates IAM resources', () => {
+    gameStateTemplate.resourceCountIs('AWS::IAM::Policy', 4);
+    gameStateTemplate.resourceCountIs('AWS::IAM::Role', 4);
   });
 });
