@@ -37,6 +37,15 @@ export const handler: Handler = async (event: APIGatewayProxyEvent) => {
     Item: {
       gameId,
       connections: ddb.createSet([event.requestContext.connectionId!]),
+      resources: {
+        [event.requestContext.connectionId!]: {
+          sheep: 0,
+          wood: 0,
+          clay: 0,
+          wheat: 0,
+          stone: 0,
+        },
+      },
     },
   };
 

@@ -39,9 +39,19 @@ export const handler: Handler = async (event: APIGatewayProxyEvent) => {
     Key: {
       gameId: eventBody.gameId,
     },
-    UpdateExpression: 'ADD connections :c',
+    UpdateExpression: 'ADD connections :c SET resources.#key = :r',
+    ExpressionAttributeNames: {
+      '#key': event.requestContext.connectionId!,
+    },
     ExpressionAttributeValues: {
       ':c': ddb.createSet([event.requestContext.connectionId!]),
+      ':r': {
+        sheep: 0,
+        wood: 0,
+        clay: 0,
+        wheat: 0,
+        stone: 0,
+      },
     },
   };
 

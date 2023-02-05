@@ -51,8 +51,8 @@
   },
   "lint-staged": {
     "*.ts": [
-      "eslint . --ext .ts",
       "prettier --ignore-path .gitignore --write */**/*.ts",
+      "eslint . --ext .ts",
       "jest"
     ]
   }
