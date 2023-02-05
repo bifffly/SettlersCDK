@@ -1,6 +1,6 @@
 import { Handler } from 'aws-cdk-lib/aws-lambda';
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import { DocumentClient, UpdateItemInput } from 'aws-sdk/clients/dynamodb';
+import { DocumentClient } from 'aws-sdk/clients/dynamodb';
 
 const ddb: DocumentClient = new DocumentClient({
   apiVersion: '2012-08-10',
@@ -8,37 +8,53 @@ const ddb: DocumentClient = new DocumentClient({
 });
 
 export const handler: Handler = async (event: APIGatewayProxyEvent) => {
-  const tableName = process.env.TABLE_NAME;
-  if (!tableName) {
-    throw new Error('table name not specified as environment variable');
+  const gameStateTableName = process.env.GAME_STATE_TABLE_NAME;
+  if (!gameStateTableName) {
+    throw new Error('game state table name not specified as environment variable');
+  }
+
+  const connectionsTableName = process.env.CONNECTIONS_TABLE_NAME;
+  if (!connectionsTableName) {
+    throw new Error('connections table name not specified as environment variable');
   }
 
   if (!event.body) {
-    return {
-      statusCode: 500,
-      body: 'Event body cannot be null.',
-    };
+    throw new Error('event body cannot be null');
   }
   const eventBody = JSON.parse(event.body);
 
-  const updateParams: UpdateItemInput = {
-    TableName: tableName,
+  const updateConnectionParams: DocumentClient.UpdateItemInput = {
+    TableName: connectionsTableName,
     Key: {
-      gameId: { S: eventBody.gameId },
+      connectionId: event.requestContext.connectionId,
+    },
+    UpdateExpression: 'SET gameId = :g',
+    ExpressionAttributeValues: {
+      ':g': eventBody.gameId,
+    },
+  };
+
+  const updateGameStateParams: DocumentClient.UpdateItemInput = {
+    TableName: gameStateTableName,
+    Key: {
+      gameId: eventBody.gameId,
     },
     UpdateExpression: 'ADD connections :c',
     ExpressionAttributeValues: {
-      ':c': { SS: [event.requestContext.connectionId as string] },
+      ':c': ddb.createSet([event.requestContext.connectionId!]),
     },
   };
 
   try {
-    await ddb.update(updateParams).promise();
+    await ddb.update(updateConnectionParams).promise();
   } catch (err) {
-    return {
-      statusCode: 500,
-      body: `Failed to connect: ${err}`,
-    };
+    throw new Error(`Failed to update connections table: ${err}`);
+  }
+
+  try {
+    await ddb.update(updateGameStateParams).promise();
+  } catch (err) {
+    throw new Error(`Failed to update gameState table: ${err}`);
   }
 
   return {

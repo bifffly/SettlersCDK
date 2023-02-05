@@ -9,26 +9,49 @@ const ddb: DocumentClient = new DocumentClient({
 });
 
 export const handler: Handler = async (event: APIGatewayProxyEvent) => {
-  const tableName = process.env.TABLE_NAME;
-  if (!tableName) {
-    throw new Error('table name not specified as environment variable');
+  const gameStateTableName = process.env.GAME_STATE_TABLE_NAME;
+  if (!gameStateTableName) {
+    throw new Error('game state table name not specified as environment variable');
   }
 
-  const putParams = {
-    TableName: tableName,
+  const connectionsTableName = process.env.CONNECTIONS_TABLE_NAME;
+  if (!connectionsTableName) {
+    throw new Error('connections table name not specified as environment variable');
+  }
+
+  const gameId = uuidv4();
+
+  const updateConnectionParams: DocumentClient.UpdateItemInput = {
+    TableName: connectionsTableName,
+    Key: {
+      connectionId: event.requestContext.connectionId,
+    },
+    UpdateExpression: 'SET gameId = :g',
+    ExpressionAttributeValues: {
+      ':g': gameId,
+    },
+  };
+
+  const putGameIdParams: DocumentClient.PutItemInput = {
+    TableName: gameStateTableName,
     Item: {
-      gameId: uuidv4(),
-      connections: [event.requestContext.connectionId],
+      gameId,
+      connections: ddb.createSet([event.requestContext.connectionId!]),
     },
   };
 
   try {
-    await ddb.put(putParams).promise();
+    await ddb.update(updateConnectionParams).promise();
+    // await ddb.put(putGameIdParams).promise();
   } catch (err) {
-    return {
-      statusCode: 500,
-      body: `Failed to connect: ${err}`,
-    };
+    throw new Error(`Failed to update connection for new game: ${err}`);
+  }
+
+  try {
+    // await ddb.update(updateConnectionParams).promise();
+    await ddb.put(putGameIdParams).promise();
+  } catch (err) {
+    throw new Error(`Failed to create new game: ${err}`);
   }
 
   return {

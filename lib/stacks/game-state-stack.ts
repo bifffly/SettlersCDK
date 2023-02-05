@@ -7,7 +7,7 @@ import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { join } from 'path';
-import { getCRUDItemPolicy, getDeleteItemPolicy, getPutItemPolicy } from './iam-policies';
+import { getCRUDItemPolicy, getPutItemPolicy } from './iam-policies';
 
 export class GameStateStack extends Stack {
   private readonly connectionsTable: Table;
@@ -51,7 +51,7 @@ export class GameStateStack extends Stack {
         CONNECTIONS_TABLE_NAME: this.connectionsTable.tableName,
         GAME_STATE_TABLE_NAME: this.gameStateTable.tableName,
       },
-      [getDeleteItemPolicy(this.connectionsTable), getCRUDItemPolicy(this.gameStateTable)]
+      [getCRUDItemPolicy(this.connectionsTable), getCRUDItemPolicy(this.gameStateTable)]
     );
 
     const apiGateway = new WebSocketApi(this, 'game-state-api', {
@@ -67,18 +67,20 @@ export class GameStateStack extends Stack {
       apiGateway,
       'new-game',
       {
-        TABLE_NAME: this.gameStateTable.tableName,
+        GAME_STATE_TABLE_NAME: this.gameStateTable.tableName,
+        CONNECTIONS_TABLE_NAME: this.connectionsTable.tableName,
       },
-      [getPutItemPolicy(this.gameStateTable)]
+      [getPutItemPolicy(this.gameStateTable), getCRUDItemPolicy(this.connectionsTable)]
     );
 
     this.addLambdaBackedRoute(
       apiGateway,
       'game-state',
       {
-        TABLE_NAME: this.gameStateTable.tableName,
+        GAME_STATE_TABLE_NAME: this.gameStateTable.tableName,
+        CONNECTIONS_TABLE_NAME: this.connectionsTable.tableName,
       },
-      [getCRUDItemPolicy(this.gameStateTable)]
+      [getCRUDItemPolicy(this.gameStateTable), getCRUDItemPolicy(this.connectionsTable)]
     );
 
     new WebSocketStage(this, 'prod-stage', {

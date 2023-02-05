@@ -13,7 +13,7 @@ export const handler: Handler = async (event: APIGatewayProxyEvent) => {
     throw new Error('table name not specified as environment variable');
   }
 
-  const putParams = {
+  const putParams: DocumentClient.PutItemInput = {
     TableName: tableName,
     Item: {
       connectionId: event.requestContext.connectionId,
