@@ -23,7 +23,7 @@ describe('Game State API Gateway Stack', () => {
   test('creates API Gateway resources', () => {
     gameStateTemplate.resourceCountIs('AWS::ApiGatewayV2::Api', 1);
     gameStateTemplate.hasResourceProperties('AWS::ApiGatewayV2::Api', {
-      Name: 'game-state-api',
+      Name: 'web-socket-api',
       ProtocolType: 'WEBSOCKET',
       RouteSelectionExpression: '$request.body.action',
     });
@@ -39,15 +39,10 @@ describe('Game State API Gateway Stack', () => {
       RouteKey: 'new-game',
     });
     gameStateTemplate.hasResourceProperties('AWS::ApiGatewayV2::Route', {
-      RouteKey: 'game-state',
+      RouteKey: 'join-game',
     });
 
     gameStateTemplate.resourceCountIs('AWS::ApiGatewayV2::Integration', 4);
-  });
-
-  test('creates IAM resources', () => {
-    gameStateTemplate.resourceCountIs('AWS::IAM::Policy', 4);
-    gameStateTemplate.resourceCountIs('AWS::IAM::Role', 4);
   });
 
   test('creates IAM resources', () => {

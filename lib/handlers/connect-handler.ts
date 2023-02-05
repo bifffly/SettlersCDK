@@ -8,13 +8,13 @@ const ddb: DocumentClient = new DocumentClient({
 });
 
 export const handler: Handler = async (event: APIGatewayProxyEvent) => {
-  const tableName = process.env.TABLE_NAME;
-  if (!tableName) {
-    throw new Error('table name not specified as environment variable');
+  const connectionsTableName = process.env.CONNECTIONS_TABLE_NAME;
+  if (!connectionsTableName) {
+    throw new Error('connections table name not specified as environment variable');
   }
 
   const putParams: DocumentClient.PutItemInput = {
-    TableName: tableName,
+    TableName: connectionsTableName,
     Item: {
       connectionId: event.requestContext.connectionId,
     },
