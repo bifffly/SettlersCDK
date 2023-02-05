@@ -9,14 +9,6 @@ export function getPutItemPolicy(table: Table) {
   });
 }
 
-export function getDeleteItemPolicy(table: Table) {
-  return new PolicyStatement({
-    effect: Effect.ALLOW,
-    actions: ['dynamodb:DeleteItem'],
-    resources: [table.tableArn],
-  });
-}
-
 export function getCRUDItemPolicy(table: Table) {
   return new PolicyStatement({
     effect: Effect.ALLOW,
