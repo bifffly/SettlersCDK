@@ -38,7 +38,10 @@ export const handler: Handler = async (event: APIGatewayProxyEvent) => {
       Key: {
         gameId,
       },
-      UpdateExpression: 'DELETE connections :c',
+      UpdateExpression: `DELETE connections :c REMOVE resources.#key`,
+      ExpressionAttributeNames: {
+        '#key': event.requestContext.connectionId!,
+      },
       ExpressionAttributeValues: {
         ':c': ddb.createSet([event.requestContext.connectionId!]),
       },
