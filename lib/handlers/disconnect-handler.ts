@@ -38,7 +38,7 @@ export const handler: Handler = async (event: APIGatewayProxyEvent) => {
       Key: {
         gameId,
       },
-      UpdateExpression: `DELETE connections :c REMOVE resources.#key`,
+      UpdateExpression: 'DELETE connections :c REMOVE resources.#key',
       ExpressionAttributeNames: {
         '#key': event.requestContext.connectionId!,
       },
